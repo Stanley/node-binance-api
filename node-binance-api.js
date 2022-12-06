@@ -5396,25 +5396,31 @@ let api = function Binance( options = {} ) {
              */
             userIsolatedMarginData: function userIsolatedMarginData( callback, execution_callback = false, subscribed_callback = false, list_status_callback = false ) {
                 let reconnect = () => {
+                  console.log('reconnect')
                     if ( Binance.options.reconnect ) userIsolatedMarginData( callback, execution_callback, subscribed_callback );
                 };
+              console.log('get key')
                 apiRequest( sapi + 'v1/userDataStream/isolated?symbol=BTCUSDT', {}, function ( error, response ) {
                   console.log('isolated stream: ', error, response)
-                    Binance.options.listenMarginKey = response.listenKey;
+                    Binance.options.listenIsolatedMarginKey = response.listenKey;
                     setTimeout( function userDataKeepAlive() { // keepalive
                         try {
-                            apiRequest( sapi + 'v1/userDataStream/isolated?listenKey=' + Binance.options.listenMarginKey, {}, function ( err ) {
+                            apiRequest( sapi + 'v1/userDataStream/isolated?listenKey=' + Binance.options.listenIsolatedMarginKey, {}, function ( err ) {
+                              if (err) {
+                                console.log(new Date(), 'keep alive error', { err })
+                              }
                                 if ( err ) setTimeout( userDataKeepAlive, 60000 ); // retry in 1 minute
                                 else setTimeout( userDataKeepAlive, 60 * 30 * 1000 ); // 30 minute keepalive
                             }, 'PUT' );
                         } catch ( error ) {
+                            console.log(new Date(), 'keep alive error', { error })
                             setTimeout( userDataKeepAlive, 60000 ); // retry in 1 minute
                         }
                     }, 60 * 30 * 1000 ); // 30 minute keepalive
                     Binance.options.margin_balance_callback = callback;
                     Binance.options.margin_execution_callback = execution_callback;
                     Binance.options.margin_list_status_callback = list_status_callback;
-                    const subscription = subscribe( Binance.options.listenMarginKey, userMarginDataHandler, reconnect );
+                    const subscription = subscribe( Binance.options.listenIsolatedMarginKey, userMarginDataHandler, reconnect );
                     if ( subscribed_callback ) subscribed_callback( subscription.endpoint );
                 }, 'POST' );
             },
