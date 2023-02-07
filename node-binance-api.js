@@ -5394,18 +5394,17 @@ let api = function Binance( options = {} ) {
              * @param {function} list_status_callback - status callback
              * @return {undefined}
              */
-            userIsolatedMarginData: function userIsolatedMarginData( callback, execution_callback = false, subscribed_callback = false, list_status_callback = false ) {
+            userIsolatedMarginData: function userIsolatedMarginData( callback, execution_callback = false, subscribed_callback = false, list_status_callback = false, symbol = 'BTCUSDT' ) {
                 let reconnect = () => {
                   console.log('reconnect')
                     if ( Binance.options.reconnect ) userIsolatedMarginData( callback, execution_callback, subscribed_callback );
                 };
-              console.log('get key')
-                apiRequest( sapi + 'v1/userDataStream/isolated?symbol=BTCUSDT', {}, function ( error, response ) {
-                  console.log('isolated stream: ', error, response)
+                console.log('[margin data] get key; symbol = ' +symbol)
+                apiRequest( sapi + 'v1/userDataStream/isolated?symbol=' + symbol, {}, function ( error, response ) {
                     Binance.options.listenIsolatedMarginKey = response.listenKey;
                     setTimeout( function userDataKeepAlive() { // keepalive
                         try {
-                            apiRequest( sapi + 'v1/userDataStream/isolated?listenKey=' + Binance.options.listenIsolatedMarginKey, {}, function ( err ) {
+                            apiRequest( sapi + 'v1/userDataStream/isolated?symbol=' + symbol + '&listenKey=' + Binance.options.listenIsolatedMarginKey, {}, function ( err ) {
                               if (err) {
                                 console.log(new Date(), 'keep alive error', { err })
                               }
