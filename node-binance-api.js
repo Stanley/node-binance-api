@@ -5397,7 +5397,7 @@ let api = function Binance( options = {} ) {
             userIsolatedMarginData: function userIsolatedMarginData( callback, execution_callback = false, subscribed_callback = false, list_status_callback = false, symbol = 'BTCUSDT' ) {
                 let reconnect = () => {
                   console.log('reconnect')
-                    if ( Binance.options.reconnect ) userIsolatedMarginData( callback, execution_callback, subscribed_callback );
+                    if ( Binance.options.reconnect ) userIsolatedMarginData( callback, execution_callback, subscribed_callback, list_status_callback, symbol );
                 };
                 console.log('[margin data] get key; symbol = ' +symbol)
                 apiRequest( sapi + 'v1/userDataStream/isolated?symbol=' + symbol, {}, function ( error, response ) {
@@ -5412,7 +5412,7 @@ let api = function Binance( options = {} ) {
                                 else setTimeout( userDataKeepAlive, 60 * 30 * 1000 ); // 30 minute keepalive
                             }, 'PUT' );
                         } catch ( error ) {
-                            console.log(new Date(), 'keep alive error', { error })
+                            console.log(new Date(), 'keep alive error', { symbol, error })
                             setTimeout( userDataKeepAlive, 60000 ); // retry in 1 minute
                         }
                     }, 60 * 30 * 1000 ); // 30 minute keepalive
